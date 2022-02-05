@@ -17,8 +17,9 @@ class Vector:
     line_scale = 40
     line_width = 2
 
-    def __init__(self, x: float, y: float,
-            color: pygame.Color = pygame.Color(0x00, 0x00, 0x00)):
+    def __init__(
+        self, x: float, y: float, color: pygame.Color = pygame.Color(0x00, 0x00, 0x00)
+    ):
         self.x = x
         self.y = y
 
@@ -44,8 +45,15 @@ class Body:
 
     # Pixels per vector unit
     speed = 5
-    def __init__(self, radius: float, pos: tuple[int|float, int|float], vector: Vector,
-            color: pygame.Color = pygame.Color(0x78, 0x52, 0x46), active: bool = True):
+
+    def __init__(
+        self,
+        radius: float,
+        pos: tuple[int | float, int | float],
+        vector: Vector,
+        color: pygame.Color = pygame.Color(0x78, 0x52, 0x46),
+        active: bool = True,
+    ):
         """
         Radius: The radius of the object (not in pixels)
         Pos: Center of the body
@@ -80,7 +88,7 @@ def dist(pos1, pos2) -> float:
     """
     Distance between two points
     """
-    return sqrt((pos2[0] - pos1[0])**2 + (pos2[1] - pos1[1])**2)
+    return sqrt((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2)
 
 
 def main():
@@ -116,7 +124,15 @@ def main():
                         if starting_pos is None:
                             # Create a new obj at the mouse pos
                             starting_pos = pygame.mouse.get_pos()
-                            bodies.append(Body(1, starting_pos, Vector(0, 0), colors.RGB.random(), False))
+                            bodies.append(
+                                Body(
+                                    1,
+                                    starting_pos,
+                                    Vector(0, 0),
+                                    colors.RGB.random(),
+                                    False,
+                                )
+                            )
                         elif isinstance(starting_pos, tuple):
                             # Stop setting the radius to the mouse position, now vector
                             starting_pos = Vector
@@ -127,7 +143,10 @@ def main():
 
             # Show size
             if isinstance(starting_pos, tuple):
-                bodies[-1].radius = dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos()) / Body.scale
+                bodies[-1].radius = (
+                    dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos())
+                    / Body.scale
+                )
             # Now show vector
             elif starting_pos is Vector:
                 mouse_pos = pygame.mouse.get_pos()
@@ -142,7 +161,12 @@ def main():
             body.draw(screen)
 
             # Remove bodies that are out of bounds
-            if body.x < (0 - OUTER_LIMITS[0]) or body.x > (SCREEN_SIZE[0] + OUTER_LIMITS[0]) or body.y < (0 - OUTER_LIMITS[1]) or body.y > (SCREEN_SIZE[1] + OUTER_LIMITS[1]):
+            if (
+                body.x < (0 - OUTER_LIMITS[0])
+                or body.x > (SCREEN_SIZE[0] + OUTER_LIMITS[0])
+                or body.y < (0 - OUTER_LIMITS[1])
+                or body.y > (SCREEN_SIZE[1] + OUTER_LIMITS[1])
+            ):
                 bodies.remove(body)
                 del body
 
