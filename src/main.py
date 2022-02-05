@@ -35,6 +35,9 @@ class Vector:
 class Body:
     # How many pixels each radius unit represents
     scale = 1
+
+    # Pixels per vector unit
+    speed = 5
     def __init__(self, radius: float, pos: tuple[int|float, int|float], vector: Vector,
             color: pygame.Color = pygame.Color(0xb3, 0x31, 0xff)):
         """
@@ -55,6 +58,14 @@ class Body:
         """
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
         self.vector.draw(screen, (self.x, self.y))
+
+    def move(self):
+        """
+        Uses the vector to change the position
+        """
+        # Substract y bc pygame coords
+        self.x += self.vector.x * self.speed
+        self.y -= self.vector.y * self.speed
 
 # Constants
 SCREEN_SIZE = (600, 400)
@@ -84,6 +95,7 @@ def main():
         screen.fill(BG)
 
         test_body.draw(screen)
+        test_body.move()
 
         # Update display
         pygame.display.flip()
