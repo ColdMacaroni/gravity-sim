@@ -6,6 +6,10 @@ import pygame
 
 import colors
 
+# Constants
+SCREEN_SIZE = (600, 400)
+
+
 # Objects
 class Vector:
     line_scale = 15
@@ -66,9 +70,6 @@ class Body:
         # Substract y bc pygame coords
         self.x += self.vector.x * self.speed
         self.y -= self.vector.y * self.speed
-
-# Constants
-SCREEN_SIZE = (600, 400)
 
 
 def main():
