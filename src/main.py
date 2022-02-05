@@ -44,7 +44,7 @@ class Body:
     # Pixels per vector unit
     speed = 5
     def __init__(self, radius: float, pos: tuple[int|float, int|float], vector: Vector,
-            color: pygame.Color = pygame.Color(0xb3, 0x31, 0xff)):
+            color: pygame.Color = pygame.Color(0xb3, 0x31, 0xff), moving: bool = True):
         """
         Radius: The radius of the object (not in pixels)
         Pos: Center of the body
@@ -56,6 +56,7 @@ class Body:
         self.vector = vector
 
         self.color = color
+        self.moving = moving
 
     def draw(self, screen: pygame.Surface):
         """
@@ -69,8 +70,9 @@ class Body:
         Uses the vector to change the position
         """
         # Substract y bc pygame coords
-        self.x += self.vector.x * self.speed
-        self.y -= self.vector.y * self.speed
+        if self.moving:
+            self.x += self.vector.x * self.speed
+            self.y -= self.vector.y * self.speed
 
 
 def dist(pos1, pos2) -> float:
