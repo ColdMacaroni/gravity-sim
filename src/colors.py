@@ -5,4 +5,4 @@
 from pygame import Color
 
 class RGB:
-    WHITE = Color(0xFFFFFF)
+    WHITE = Color(0xFF, 0xFF, 0xFF)
