@@ -13,7 +13,7 @@ SCREEN_SIZE = (600, 400)
 
 # Objects
 class Vector:
-    line_scale = 15
+    line_scale = 40
     line_width = 2
 
     def __init__(self, x: float, y: float,
@@ -44,7 +44,7 @@ class Body:
     # Pixels per vector unit
     speed = 5
     def __init__(self, radius: float, pos: tuple[int|float, int|float], vector: Vector,
-            color: pygame.Color = pygame.Color(0x78, 0x52, 0x46), moving: bool = True):
+            color: pygame.Color = pygame.Color(0x78, 0x52, 0x46), active: bool = True):
         """
         Radius: The radius of the object (not in pixels)
         Pos: Center of the body
@@ -56,7 +56,7 @@ class Body:
         self.vector = vector
 
         self.color = color
-        self.moving = moving
+        self.active = active
 
     def draw(self, screen: pygame.Surface):
         """
@@ -70,7 +70,7 @@ class Body:
         Uses the vector to change the position
         """
         # Substract y bc pygame coords
-        if self.moving:
+        if self.active:
             self.x += self.vector.x * self.speed
             self.y -= self.vector.y * self.speed
 
@@ -113,19 +113,31 @@ def main():
                 case pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if starting_pos is None:
+                            # Create a new obj at the mouse pos
                             starting_pos = pygame.mouse.get_pos()
                             bodies.append(Body(1, starting_pos, Vector(0, 0), colors.RGB.random(), False))
+                        elif isinstance(starting_pos, tuple):
+                            # Stop setting the radius to the mouse position, now vector
+                            starting_pos = Vector
                         else:
+                            # All done, you can go now
                             starting_pos = None
+                            bodies[-1].active = True
 
             # Show size
-            if starting_pos is not None:
-                bodies[-1].radius = max(dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos()) / Body.scale - 10, 0)
+            if isinstance(starting_pos, tuple):
+                bodies[-1].radius = dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos()) / Body.scale
+            # Now show vector
+            elif starting_pos is Vector:
+                mouse_pos = pygame.mouse.get_pos()
+                bodies[-1].vector.x = (mouse_pos[0] - bodies[-1].x) / Vector.line_scale
+                bodies[-1].vector.y = (bodies[-1].y - mouse_pos[1]) / Vector.line_scale
 
         # Reset screen
         screen.fill(BG)
 
         for body in bodies:
+            body.move()
             body.draw(screen)
 
         test_body.draw(screen)
