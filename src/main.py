@@ -3,6 +3,7 @@
 # A program to simulate gravity, oh no
 
 import pygame
+from math import sqrt
 
 import colors
 
@@ -72,6 +73,13 @@ class Body:
         self.y -= self.vector.y * self.speed
 
 
+def dist(pos1, pos2) -> float:
+    """
+    Distance between two points
+    """
+    return sqrt((pos2[0] - pos1[0])**2 + (pos2[1] - pos1[1])**2)
+
+
 def main():
     """
     The main game loop
@@ -84,16 +92,39 @@ def main():
     screen = pygame.display.set_mode(SCREEN_SIZE)
     clock = pygame.time.Clock()
 
+    bodies = list()
+
     test_body = Body(15, (300, 200), Vector(1, 1))
+
+    # For creating new Objects
+    # TODO: Find a better way to do this?
+    creating = None
+    starting_pos = None
 
     running = True
     while running:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                exit()
+            match event.type:
+                case pygame.QUIT:
+                    exit()
+
+                case pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        if starting_pos is None:
+                            starting_pos = pygame.mouse.get_pos()
+                            bodies.append(Body(1, starting_pos, Vector(0, 0)))
+                        else:
+                            starting_pos = None
+
+            # Show size
+            if starting_pos is not None:
+                bodies[-1].radius = dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos()) / Body.scale
 
         # Reset screen
         screen.fill(BG)
+
+        for body in bodies:
+            body.draw(screen)
 
         test_body.draw(screen)
         test_body.move()
