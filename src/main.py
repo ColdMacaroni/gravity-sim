@@ -3,6 +3,8 @@
 # A program to simulate gravity, oh no
 
 import pygame
+
+import math
 from math import sqrt
 
 import colors
@@ -14,8 +16,11 @@ OUTER_LIMITS = (800, 800)
 
 # Objects
 class Vector:
-    line_scale = 40
+    line_scale = 50
     line_width = 2
+
+    head_pt = line_scale / 4
+    head_dist = line_scale * 4 / 5
 
     def __init__(
         self, x: float, y: float, color: pygame.Color = pygame.Color(0x00, 0x00, 0x00)
@@ -25,10 +30,20 @@ class Vector:
 
         self.color = color
 
+    def __iadd__(self, other: 'Vector'):
+        """
+        support for += with other vectors
+        """
+        self.x += other.x
+        self.y += other.y
+
     def draw(self, screen, start):
         """
         Draws the vector as an arrow
         """
+        if self.x + self.y == 0:
+            return
+
         # Remember that pygame y coordinates are inversed
         end = (start[0] + self.x * self.line_scale, start[1] - self.y * self.line_scale)
 
@@ -66,6 +81,18 @@ class Body:
 
         self.color = color
         self.active = active
+
+    def get_pos(self) -> tuple[float, float]:
+        """
+        Returns x, y position in a tuple
+        """
+        return self.x, self.y
+
+    def get_area(self) -> float:
+        """
+        Returns area of body
+        """
+        return math.pi * self.radius ** 2
 
     def draw(self, screen: pygame.Surface):
         """
@@ -144,7 +171,7 @@ def main():
             # Show size
             if isinstance(starting_pos, tuple):
                 bodies[-1].radius = (
-                    dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos())
+                    dist(bodies[-1].get_pos(), pygame.mouse.get_pos())
                     / Body.scale
                 )
             # Now show vector
@@ -159,6 +186,24 @@ def main():
         for body in bodies:
             body.move()
             body.draw(screen)
+
+            # Check for collisions, increasing mass to the biggest
+            for other in bodies:
+                if other is body or not body.active or not other.active:
+                    continue
+                if dist(body.get_pos(), other.get_pos()) <= body.radius + other.radius:
+                    # the mass of the smaller body will be absorbed into the biggest one
+                    smaller, bigger = sorted([body, other], key=lambda x: x.get_area())
+
+                    # TODO: add vectors together, proportionally based on are maybe?
+
+                    # Calculate new radius based on the sum of their areas
+                    bigger.radius = sqrt((smaller.get_area() +  bigger.get_area())/math.pi)
+
+
+                    bodies.remove(smaller)
+                    del smaller
+
 
             # Remove bodies that are out of bounds
             if (
