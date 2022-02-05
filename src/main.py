@@ -4,13 +4,36 @@
 
 import pygame
 
-screen_size = (600, 400)
+import colors
+
+SCREEN_SIZE = (600, 400)
 
 def main():
     """
     The main game loop
     """
-    width, height = screen_size
+    # Consts
+    BG = colors.RGB.WHITE
+
+    # Pygame stuff
+    pygame.init()
+    screen = pygame.display.set_mode(SCREEN_SIZE)
+    clock = pygame.time.Clock()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+
+        # Reset screen
+        screen.fill(BG)
+
+        # Update display
+        pygame.display.flip()
+
+        clock.tick(60)
+
 
 
 if __name__ == "__main__":
