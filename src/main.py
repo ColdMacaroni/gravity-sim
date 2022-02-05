@@ -44,7 +44,7 @@ class Body:
     # Pixels per vector unit
     speed = 5
     def __init__(self, radius: float, pos: tuple[int|float, int|float], vector: Vector,
-            color: pygame.Color = pygame.Color(0xb3, 0x31, 0xff), moving: bool = True):
+            color: pygame.Color = pygame.Color(0x78, 0x52, 0x46), moving: bool = True):
         """
         Radius: The radius of the object (not in pixels)
         Pos: Center of the body
@@ -114,13 +114,13 @@ def main():
                     if event.button == 1:
                         if starting_pos is None:
                             starting_pos = pygame.mouse.get_pos()
-                            bodies.append(Body(1, starting_pos, Vector(0, 0)))
+                            bodies.append(Body(1, starting_pos, Vector(0, 0), colors.RGB.random(), False))
                         else:
                             starting_pos = None
 
             # Show size
             if starting_pos is not None:
-                bodies[-1].radius = dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos()) / Body.scale
+                bodies[-1].radius = max(dist((bodies[-1].x, bodies[-1].y), pygame.mouse.get_pos()) / Body.scale - 10, 0)
 
         # Reset screen
         screen.fill(BG)
