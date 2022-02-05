@@ -9,6 +9,7 @@ import colors
 
 # Constants
 SCREEN_SIZE = (600, 400)
+OUTER_LIMITS = (800, 800)
 
 
 # Objects
@@ -91,7 +92,7 @@ def main():
 
     # Pygame stuff
     pygame.init()
-    screen = pygame.display.set_mode(SCREEN_SIZE)
+    screen = pygame.display.set_mode(SCREEN_SIZE, vsync=1)
     clock = pygame.time.Clock()
 
     bodies = list()
@@ -139,6 +140,11 @@ def main():
         for body in bodies:
             body.move()
             body.draw(screen)
+
+            # Remove bodies that are out of bounds
+            if body.x < (0 - OUTER_LIMITS[0]) or body.x > (SCREEN_SIZE[0] + OUTER_LIMITS[0]) or body.y < (0 - OUTER_LIMITS[1]) or body.y > (SCREEN_SIZE[1] + OUTER_LIMITS[1]):
+                bodies.remove(body)
+                del body
 
         test_body.draw(screen)
         test_body.move()
