@@ -233,7 +233,16 @@ def main():
 
                         # R to reset bodies
                         case pygame.K_r:
-                            bodies.clear()
+                            # Countermeasures for crashes
+                            if starting_pos is None:
+                                bodies.clear()
+
+                        # Z as in undo
+                        case pygame.K_z:
+                            # Only pop if there are things to pop and it wont interfere
+                            # on some other thing
+                            if bodies and starting_pos is None:
+                                bodies.pop()
 
             # Show size
             if isinstance(starting_pos, tuple):
