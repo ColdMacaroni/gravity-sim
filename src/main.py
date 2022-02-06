@@ -226,6 +226,8 @@ def main():
             for other in bodies:
                 if other is body or not body.active or not other.active:
                     continue
+
+                # Handle collisions
                 if dist(body.get_pos(), other.get_pos()) <= body.radius + other.radius:
                     # the mass of the smaller body will be absorbed into the biggest one
                     smaller, bigger = sorted([body, other], key=lambda x: x.get_area())
@@ -243,6 +245,19 @@ def main():
 
                     bodies.remove(smaller)
                     del smaller
+
+                # gravitate
+                else:
+                    # Create new vector based on the body
+                    grav_vector = Vector(other.x - body.x, body.y - other.y, body.color)
+                    grav_vector.x /= 2500
+                    grav_vector.y /= 2500
+                    grav_vector.draw(screen, (body.x, body.y))
+
+                    body.vector.add_vector(
+                        grav_vector,
+                        (other.get_area()) / (dist(body.get_pos(), other.get_pos()) ** 2),
+                    )
 
             # Remove bodies that are out of bounds
             if (
