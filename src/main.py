@@ -174,8 +174,6 @@ def main():
 
     bodies = list()
 
-    test_body = Body(15, (300, 200), Vector(1, 1))
-
     # For creating new Objects
     # TODO: Find a better way to do this?
     creating = None
@@ -317,9 +315,6 @@ def main():
             ):
                 bodies.remove(body)
                 del body
-
-        test_body.draw(screen)
-        test_body.move()
 
         # Update display
         pygame.display.flip()
