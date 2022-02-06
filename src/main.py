@@ -50,6 +50,8 @@ class Vector:
             self.x /= num
             self.y /= num
 
+    # TODO: Add reset method that sets x and y to 0
+
     def draw(self, screen, start):
         """
         Draws the vector as an arrow
@@ -228,6 +230,10 @@ def main():
                                 bodies[-1].vector.y = 0
                                 bodies[-1].status = BodyStatus.ACTIVE
                                 starting_pos = None
+
+                        # R to reset bodies
+                        case pygame.K_r:
+                            bodies.clear()
 
             # Show size
             if isinstance(starting_pos, tuple):
