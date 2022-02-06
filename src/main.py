@@ -189,6 +189,16 @@ def main():
                             starting_pos = None
                             bodies[-1].active = True
 
+                case pygame.KEYDOWN:
+                    match event.key:
+                        case pygame.K_ESCAPE:
+                            # Make it start with a 0 vector
+                            if starting_pos is Vector:
+                                bodies[-1].vector.x = 0
+                                bodies[-1].vector.y = 0
+                                bodies[-1].active = True
+                                starting_pos = None
+
             # Show size
             if isinstance(starting_pos, tuple):
                 bodies[-1].radius = (
