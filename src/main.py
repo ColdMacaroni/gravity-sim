@@ -10,8 +10,8 @@ from math import sqrt
 import colors
 
 # Constants
-SCREEN_SIZE = (600, 400)
-OUTER_LIMITS = (800, 800)
+SCREEN_SIZE = (600, 600)
+OUTER_LIMITS = (300, 300)
 
 
 # Objects
@@ -35,6 +35,14 @@ class Vector:
         """
         self.x += other.x * mult
         self.y += other.y * mult
+
+    def div(self, num: float):
+        """
+        Divides both x and y by the num
+        """
+        if num:
+            self.x /= num
+            self.y /= num
 
     def draw(self, screen, start):
         """
@@ -248,11 +256,13 @@ def main():
 
                 # gravitate
                 else:
-                    # Create new vector based on the body
-                    grav_vector = Vector(other.x - body.x, body.y - other.y, body.color)
-                    grav_vector.x /= 2500
-                    grav_vector.y /= 2500
-                    grav_vector.draw(screen, (body.x, body.y))
+                    # Create new vector based on the other body
+                    grav_vector = Vector(other.x - body.x, body.y - other.y)
+
+                    # Scale down
+                    grav_vector.div(Vector.line_scale**2)
+
+                    # grav_vector.draw(screen, (body.x, body.y))
 
                     body.vector.add_vector(
                         grav_vector,
