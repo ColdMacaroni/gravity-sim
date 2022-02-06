@@ -29,7 +29,7 @@ class Vector:
 
         self.color = color
 
-    def add_vector(self, other: 'Vector', mult: float = 1):
+    def add_vector(self, other: "Vector", mult: float = 1):
         """
         Adds a vector to this one. Can use the mult(iplier) parameter to determine influence
         """
@@ -49,13 +49,17 @@ class Vector:
 
         # - Right side
         # will create a point 90° off the start. pp=perpendicular
-        pp_r = (start[0] + self.y * self.line_scale, self.x * self.line_scale + start[1])
+        pp_r = (
+            start[0] + self.y * self.line_scale,
+            self.x * self.line_scale + start[1],
+        )
 
         # We can then use a linear interpolation to see how long the head will be
         # It'll be done between the end of the arrow body and the perpendicular line
         # P0 + t(P1 - P0)
-        head_end_r = end[0] + self.head_len * (pp_r[0] - end[0]), \
-                     end[1] + self.head_len * (pp_r[1] - end[1])
+        head_end_r = end[0] + self.head_len * (pp_r[0] - end[0]), end[
+            1
+        ] + self.head_len * (pp_r[1] - end[1])
 
         pygame.draw.line(screen, self.color, end, head_end_r, self.line_width)
 
@@ -63,8 +67,9 @@ class Vector:
         # Reflect the pp point across the start to get the other side arrow and repeat
         pp_l = start[0] + (start[0] - pp_r[0]), start[1] + (start[1] - pp_r[1])
 
-        head_end_l = end[0] + self.head_len * (pp_l[0] - end[0]), \
-                     end[1] + self.head_len * (pp_l[1] - end[1])
+        head_end_l = end[0] + self.head_len * (pp_l[0] - end[0]), end[
+            1
+        ] + self.head_len * (pp_l[1] - end[1])
         pygame.draw.line(screen, self.color, end, head_end_l, self.line_width)
 
         # Draw arrow head
@@ -113,7 +118,7 @@ class Body:
         """
         Returns area of body
         """
-        return math.pi * self.radius ** 2
+        return math.pi * self.radius**2
 
     def draw(self, screen: pygame.Surface):
         """
@@ -202,8 +207,7 @@ def main():
             # Show size
             if isinstance(starting_pos, tuple):
                 bodies[-1].radius = (
-                    dist(bodies[-1].get_pos(), pygame.mouse.get_pos())
-                    / Body.scale
+                    dist(bodies[-1].get_pos(), pygame.mouse.get_pos()) / Body.scale
                 )
             # Now show vector
             elif starting_pos is Vector:
@@ -228,15 +232,17 @@ def main():
 
                     # Add vectors together, using ratio between areas to determine influence
                     # Pi would simplify out which is why it isn't included
-                    bigger.vector.add_vector(smaller.vector, (smaller.radius**2)/(bigger.radius**2))
+                    bigger.vector.add_vector(
+                        smaller.vector, (smaller.radius**2) / (bigger.radius**2)
+                    )
 
                     # Calculate new radius based on the sum of their areas
-                    bigger.radius = sqrt((smaller.get_area() +  bigger.get_area())/math.pi)
-
+                    bigger.radius = sqrt(
+                        (smaller.get_area() + bigger.get_area()) / math.pi
+                    )
 
                     bodies.remove(smaller)
                     del smaller
-
 
             # Remove bodies that are out of bounds
             if (
