@@ -29,12 +29,12 @@ class Vector:
 
         self.color = color
 
-    def __iadd__(self, other: 'Vector'):
+    def add_vector(self, other: 'Vector', mult: float = 1):
         """
-        support for += with other vectors
+        Adds a vector to this one. Can use the mult(iplier) parameter to determine influence
         """
-        self.x += other.x
-        self.y += other.y
+        self.x += other.x * mult
+        self.y += other.y * mult
 
     def draw(self, screen, start):
         """
@@ -216,7 +216,9 @@ def main():
                     # the mass of the smaller body will be absorbed into the biggest one
                     smaller, bigger = sorted([body, other], key=lambda x: x.get_area())
 
-                    # TODO: add vectors together, proportionally based on are maybe?
+                    # Add vectors together, using ratio between areas to determine influence
+                    # Pi would simplify out which is why it isn't included
+                    bigger.vector.add_vector(smaller.vector, (smaller.radius**2)/(bigger.radius**2))
 
                     # Calculate new radius based on the sum of their areas
                     bigger.radius = sqrt((smaller.get_area() +  bigger.get_area())/math.pi)
