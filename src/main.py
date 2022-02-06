@@ -217,8 +217,6 @@ def main():
                             bodies[-1].vector.y = 0
                             bodies[-1].status = BodyStatus.PASSIVE
 
-
-
                 case pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_ESCAPE:
@@ -262,15 +260,24 @@ def main():
 
             # Check for collisions, increasing mass to the biggest
             for other in bodies:
-                if other is body or body.status is BodyStatus.INACTIVE or other.status is BodyStatus.INACTIVE:
+                if (
+                    other is body
+                    or body.status is BodyStatus.INACTIVE
+                    or other.status is BodyStatus.INACTIVE
+                ):
                     continue
 
                 # Handle collisions
                 if dist(body.get_pos(), other.get_pos()) <= body.radius + other.radius:
                     # Remove smaller if both are active objects
-                    if body.status is BodyStatus.ACTIVE and other.status is not BodyStatus.PASSIVE:
+                    if (
+                        body.status is BodyStatus.ACTIVE
+                        and other.status is not BodyStatus.PASSIVE
+                    ):
                         # the mass of the smaller body will be absorbed into the biggest one
-                        smaller, bigger = sorted([body, other], key=lambda x: x.get_area())
+                        smaller, bigger = sorted(
+                            [body, other], key=lambda x: x.get_area()
+                        )
 
                         # Add vectors together, using ratio between areas to determine influence
                         # Pi would simplify out which is why it isn't included
@@ -287,7 +294,10 @@ def main():
                         del smaller
 
                     # Delete the other if this is passive and other is not
-                    elif body.status is BodyStatus.PASSIVE and other.status is BodyStatus.ACTIVE:
+                    elif (
+                        body.status is BodyStatus.PASSIVE
+                        and other.status is BodyStatus.ACTIVE
+                    ):
                         bodies.remove(other)
                         del other
 
@@ -303,7 +313,8 @@ def main():
 
                     body.vector.add_vector(
                         grav_vector,
-                        (other.get_area()) / (dist(body.get_pos(), other.get_pos()) ** 2),
+                        (other.get_area())
+                        / (dist(body.get_pos(), other.get_pos()) ** 2),
                     )
 
             # Remove bodies that are out of bounds
