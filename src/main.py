@@ -19,8 +19,7 @@ class Vector:
     line_scale = 50
     line_width = 2
 
-    head_pt = line_scale / 4
-    head_dist = line_scale * 4 / 5
+    head_len = 0.15
 
     def __init__(
         self, x: float, y: float, color: pygame.Color = pygame.Color(0x00, 0x00, 0x00)
@@ -41,16 +40,38 @@ class Vector:
         """
         Draws the vector as an arrow
         """
+        # Dont draw static vectors and also avoid calculation errors i think
         if self.x + self.y == 0:
             return
 
         # Remember that pygame y coordinates are inversed
         end = (start[0] + self.x * self.line_scale, start[1] - self.y * self.line_scale)
 
-        # TODO: Add arrow head
-        #       Get perpendicular line (reciprocal of gradient) and move like 10px or like
-        #       half a scale on each direction
+        # - Right side
+        # will create a point 90° off the start. pp=perpendicular
+        pp_r = (start[0] + self.y * self.line_scale, self.x * self.line_scale + start[1])
 
+        # We can then use a linear interpolation to see how long the head will be
+        # It'll be done between the end of the arrow body and the perpendicular line
+        # P0 + t(P1 - P0)
+        head_end_r = end[0] + self.head_len * (pp_r[0] - end[0]), \
+                     end[1] + self.head_len * (pp_r[1] - end[1])
+
+        pygame.draw.line(screen, self.color, end, head_end_r, self.line_width)
+
+        # - Left side
+        # Reflect the pp point across the start to get the other side arrow and repeat
+        pp_l = start[0] + (start[0] - pp_r[0]), start[1] + (start[1] - pp_r[1])
+
+        head_end_l = end[0] + self.head_len * (pp_l[0] - end[0]), \
+                     end[1] + self.head_len * (pp_l[1] - end[1])
+        pygame.draw.line(screen, self.color, end, head_end_l, self.line_width)
+
+        # Draw arrow head
+        # pygame.draw.line(screen, self.color, (0, 0), end, self.line_width)
+        # pygame.draw.line(screen, self.color, (0, 0), end, self.line_width)
+
+        # Draw arrow body
         pygame.draw.line(screen, self.color, start, end, self.line_width)
 
 
