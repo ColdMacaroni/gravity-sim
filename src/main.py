@@ -208,6 +208,17 @@ def main():
                             starting_pos = None
                             bodies[-1].status = BodyStatus.ACTIVE
 
+                    # Right click used to set passive obj
+                    elif event.button == 3:
+                        if starting_pos is Vector:
+                            starting_pos = None
+
+                            bodies[-1].vector.x = 0
+                            bodies[-1].vector.y = 0
+                            bodies[-1].status = BodyStatus.PASSIVE
+
+
+
                 case pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_ESCAPE:
@@ -243,25 +254,32 @@ def main():
 
                 # Handle collisions
                 if dist(body.get_pos(), other.get_pos()) <= body.radius + other.radius:
-                    # the mass of the smaller body will be absorbed into the biggest one
-                    smaller, bigger = sorted([body, other], key=lambda x: x.get_area())
+                    # Remove smaller if both are active objects
+                    if body.status is BodyStatus.ACTIVE and other.status is not BodyStatus.PASSIVE:
+                        # the mass of the smaller body will be absorbed into the biggest one
+                        smaller, bigger = sorted([body, other], key=lambda x: x.get_area())
 
-                    # Add vectors together, using ratio between areas to determine influence
-                    # Pi would simplify out which is why it isn't included
-                    bigger.vector.add_vector(
-                        smaller.vector, (smaller.radius**2) / (bigger.radius**2)
-                    )
+                        # Add vectors together, using ratio between areas to determine influence
+                        # Pi would simplify out which is why it isn't included
+                        bigger.vector.add_vector(
+                            smaller.vector, (smaller.radius**2) / (bigger.radius**2)
+                        )
 
-                    # Calculate new radius based on the sum of their areas
-                    bigger.radius = sqrt(
-                        (smaller.get_area() + bigger.get_area()) / math.pi
-                    )
+                        # Calculate new radius based on the sum of their areas
+                        bigger.radius = sqrt(
+                            (smaller.get_area() + bigger.get_area()) / math.pi
+                        )
 
-                    bodies.remove(smaller)
-                    del smaller
+                        bodies.remove(smaller)
+                        del smaller
+
+                    # Delete the other if this is passive and other is not
+                    elif body.status is BodyStatus.PASSIVE and other.status is BodyStatus.ACTIVE:
+                        bodies.remove(other)
+                        del other
 
                 # gravitate
-                else:
+                elif body.status is BodyStatus.ACTIVE:
                     # Create new vector based on the other body
                     grav_vector = Vector(other.x - body.x, body.y - other.y)
 
