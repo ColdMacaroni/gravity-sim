@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # src/main.py
-# A program to simulate gravity, oh no
+# A program to simulate gravity
+# Copyright (C) 2022  ColdMacaroni
+# Licensed under GPLv3
 
 import pygame
 
