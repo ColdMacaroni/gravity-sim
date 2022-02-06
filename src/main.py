@@ -6,12 +6,18 @@ import pygame
 
 import math
 from math import sqrt
-
+from enum import Enum, auto
 import colors
 
 # Constants
 SCREEN_SIZE = (600, 600)
 OUTER_LIMITS = (300, 300)
+
+
+class BodyStatus(Enum):
+    ACTIVE = auto()
+    INACTIVE = auto()
+    PASSIVE = auto()
 
 
 # Objects
@@ -101,7 +107,7 @@ class Body:
         pos: tuple[int | float, int | float],
         vector: Vector,
         color: pygame.Color = pygame.Color(0x78, 0x52, 0x46),
-        active: bool = True,
+        status: BodyStatus = BodyStatus.ACTIVE,
     ):
         """
         Radius: The radius of the object (not in pixels)
@@ -114,7 +120,7 @@ class Body:
         self.vector = vector
 
         self.color = color
-        self.active = active
+        self.status = status
 
     def get_pos(self) -> tuple[float, float]:
         """
@@ -140,7 +146,7 @@ class Body:
         Uses the vector to change the position
         """
         # Substract y bc pygame coords
-        if self.active:
+        if self.status is BodyStatus.ACTIVE:
             self.x += self.vector.x * self.speed
             self.y -= self.vector.y * self.speed
 
@@ -191,7 +197,7 @@ def main():
                                     starting_pos,
                                     Vector(0, 0),
                                     colors.RGB.random(),
-                                    False,
+                                    BodyStatus.INACTIVE,
                                 )
                             )
                         elif isinstance(starting_pos, tuple):
@@ -200,7 +206,7 @@ def main():
                         else:
                             # All done, you can go now
                             starting_pos = None
-                            bodies[-1].active = True
+                            bodies[-1].status = BodyStatus.ACTIVE
 
                 case pygame.KEYDOWN:
                     match event.key:
@@ -209,7 +215,7 @@ def main():
                             if starting_pos is Vector:
                                 bodies[-1].vector.x = 0
                                 bodies[-1].vector.y = 0
-                                bodies[-1].active = True
+                                bodies[-1].status = BodyStatus.ACTIVE
                                 starting_pos = None
 
             # Show size
@@ -232,7 +238,7 @@ def main():
 
             # Check for collisions, increasing mass to the biggest
             for other in bodies:
-                if other is body or not body.active or not other.active:
+                if other is body or body.status is BodyStatus.INACTIVE or other.status is BodyStatus.INACTIVE:
                     continue
 
                 # Handle collisions
