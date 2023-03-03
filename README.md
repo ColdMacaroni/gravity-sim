@@ -11,6 +11,11 @@ click again to set it. The arrow that pops up represents the initial movement
 of the body.
 
 ## Shortcuts
+### At any moment
+| Action | Result |
+|  :---: | ---    |
+| Space  | Pause |
+
 ### On a blank canvas:
 |   Action   | Result                    |
 |   :---:    | ---                       |
