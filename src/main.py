@@ -176,10 +176,11 @@ def main():
 
     bodies = list()
 
-    # For creating new Objects
-    # TODO: Find a better way to do this?
-    creating = None
     starting_pos = None
+
+    paused_text = pygame.font.SysFont(
+        pygame.font.get_default_font(), 42).render("Paused", True, (0, 0, 0))
+    paused = False
 
     running = True
     while running:
@@ -241,6 +242,11 @@ def main():
                             # on some other thing
                             if bodies and starting_pos is None:
                                 bodies.pop()
+                        
+                        # Change paused state if nothing else is going on
+                        case pygame.K_SPACE:
+                            # if starting_pos is None:
+                            paused = not paused
 
             # Show size
             if isinstance(starting_pos, tuple):
@@ -257,77 +263,87 @@ def main():
         screen.fill(BG)
 
         for body in bodies:
-            body.move()
-            body.draw(screen)
+            # dont move the bodies when paused
+            if paused:
+                body.draw(screen)
 
-            # Check for collisions, increasing mass to the biggest
-            for other in bodies:
-                if (
-                    other is body
-                    or body.status is BodyStatus.INACTIVE
-                    or other.status is BodyStatus.INACTIVE
-                ):
-                    continue
-
-                # Handle collisions
-                if dist(body.get_pos(), other.get_pos()) <= body.radius + other.radius:
-                    # Remove smaller if both are active objects
+            else:
+                body.move()
+                body.draw(screen)
+                # Check for collisions, increasing mass to the biggest
+                for other in bodies:
                     if (
-                        body.status is BodyStatus.ACTIVE
-                        and other.status is not BodyStatus.PASSIVE
+                        other is body
+                        or body.status is BodyStatus.INACTIVE
+                        or other.status is BodyStatus.INACTIVE
                     ):
-                        # the mass of the smaller body will be absorbed into the biggest one
-                        smaller, bigger = sorted(
-                            [body, other], key=lambda x: x.get_area()
+                        continue
+
+                    # Handle collisions
+                    if dist(body.get_pos(), other.get_pos()) <= body.radius + other.radius:
+                        # Remove smaller if both are active objects
+                        if (
+                            body.status is BodyStatus.ACTIVE
+                            and other.status is not BodyStatus.PASSIVE
+                        ):
+                            # the mass of the smaller body will be absorbed into the biggest one
+                            smaller, bigger = sorted(
+                                [body, other], key=lambda x: x.get_area()
+                            )
+
+                            # Add vectors together, using ratio between areas to determine influence
+                            # Pi would simplify out which is why it isn't included
+                            bigger.vector.add_vector(
+                                smaller.vector, (smaller.radius**2) / (bigger.radius**2)
+                            )
+
+                            # Calculate new radius based on the sum of their areas
+                            bigger.radius = sqrt(
+                                (smaller.get_area() + bigger.get_area()) / math.pi
+                            )
+
+                            bodies.remove(smaller)
+                            del smaller
+
+                        # Delete the other if this is passive and other is not
+                        elif (
+                            body.status is BodyStatus.PASSIVE
+                            and other.status is BodyStatus.ACTIVE
+                        ):
+                            bodies.remove(other)
+                            del other
+
+                    # gravitate
+                    elif body.status is BodyStatus.ACTIVE:
+                        # Create new vector based on the other body
+                        grav_vector = Vector(other.x - body.x, body.y - other.y)
+
+                        # Scale down
+                        grav_vector.div(Vector.line_scale**2)
+
+                        # grav_vector.draw(screen, (body.x, body.y))
+
+                        body.vector.add_vector(
+                            grav_vector,
+                            (other.get_area())
+                            / (dist(body.get_pos(), other.get_pos()) ** 2),
                         )
 
-                        # Add vectors together, using ratio between areas to determine influence
-                        # Pi would simplify out which is why it isn't included
-                        bigger.vector.add_vector(
-                            smaller.vector, (smaller.radius**2) / (bigger.radius**2)
-                        )
+                # Remove bodies that are out of bounds
+                if (
+                    body.x < (0 - OUTER_LIMITS[0])
+                    or body.x > (SCREEN_SIZE[0] + OUTER_LIMITS[0])
+                    or body.y < (0 - OUTER_LIMITS[1])
+                    or body.y > (SCREEN_SIZE[1] + OUTER_LIMITS[1])
+                ):
+                    bodies.remove(body)
+                    del body
 
-                        # Calculate new radius based on the sum of their areas
-                        bigger.radius = sqrt(
-                            (smaller.get_area() + bigger.get_area()) / math.pi
-                        )
-
-                        bodies.remove(smaller)
-                        del smaller
-
-                    # Delete the other if this is passive and other is not
-                    elif (
-                        body.status is BodyStatus.PASSIVE
-                        and other.status is BodyStatus.ACTIVE
-                    ):
-                        bodies.remove(other)
-                        del other
-
-                # gravitate
-                elif body.status is BodyStatus.ACTIVE:
-                    # Create new vector based on the other body
-                    grav_vector = Vector(other.x - body.x, body.y - other.y)
-
-                    # Scale down
-                    grav_vector.div(Vector.line_scale**2)
-
-                    # grav_vector.draw(screen, (body.x, body.y))
-
-                    body.vector.add_vector(
-                        grav_vector,
-                        (other.get_area())
-                        / (dist(body.get_pos(), other.get_pos()) ** 2),
-                    )
-
-            # Remove bodies that are out of bounds
-            if (
-                body.x < (0 - OUTER_LIMITS[0])
-                or body.x > (SCREEN_SIZE[0] + OUTER_LIMITS[0])
-                or body.y < (0 - OUTER_LIMITS[1])
-                or body.y > (SCREEN_SIZE[1] + OUTER_LIMITS[1])
-            ):
-                bodies.remove(body)
-                del body
+        # Show that it is paused to avoid confusion
+        # Needs to be drawn outside previous for loop, otherwise it's skipped if 
+        # bodies is empty
+        if paused:
+            screen.blit(paused_text, (5,5))
 
         # Update display
         pygame.display.flip()
